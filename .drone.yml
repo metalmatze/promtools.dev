@@ -26,3 +26,20 @@ steps:
       CGO_ENABLED: 0
       GO111MODULE: off
       GOPROXY: https://proxy.golang.org
+
+  - name: container
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/metalmatze/slo-libsonnet-web
+      username:
+        from_secret: quay_username
+      password:
+        from_secret: quay_password
+      auto_tag: true
+    when:
+      branch:
+        - master
+        - drone
+      event:
+        - push
