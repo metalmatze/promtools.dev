@@ -1,0 +1,14 @@
+{
+    "dependencies": [
+        {
+            "name": "slo-libsonnet",
+            "source": {
+                "git": {
+                    "remote": "https://github.com/metalmatze/slo-libsonnet",
+                    "subdir": "slo-libsonnet"
+                }
+            },
+            "version": "437c402c5f3ad86c3c16db8471f1649284fef0ee"
+        }
+    ]
+}
