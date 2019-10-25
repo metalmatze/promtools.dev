@@ -17,8 +17,8 @@ func main() {
 	})
 
 	r := chi.NewRouter()
-	r.Get("/", HandlerFunc(index))
-	r.Post("/generate", HandlerFunc(generate(vm))
+	r.Get("/", foo(index))
+	r.Post("/generate", foo(generate(vm)))
 
 	if err := http.ListenAndServe(":9099", r); err != nil {
 		log.Println(err)
@@ -58,7 +58,7 @@ var indexTemplate = `
 func index(w http.ResponseWriter, r *http.Request) (int, error) {
 	_, err := w.Write([]byte(indexTemplate))
 	if err != nil {
-		return http.StatusInternalServerError,err
+		return http.StatusInternalServerError, err
 	}
 
 	return http.StatusOK, nil
@@ -92,19 +92,32 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 		snippet := fmt.Sprintf(errorBurnRate, metric, selectors, errorbudget)
 		json, err := vm.EvaluateSnippet("", snippet)
 		if err != nil {
-			return http.StatusInternalServerError,err
+			return http.StatusInternalServerError, err
 		}
 
 		y, err := yaml.JSONToYAML([]byte(json))
 		if err != nil {
-			return http.StatusInternalServerError,err
+			return http.StatusInternalServerError, err
 		}
 
 		w.Header().Set("Content-Type", "text/plain")
 		_, _ = fmt.Fprintln(w, string(y))
 
-		return http.StatusOK,nil
+		return http.StatusOK, nil
 	}
 }
 
 type HandlerFunc func(http.ResponseWriter, *http.Request) (int, error)
+
+func foo(h HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		statusCode, err := h(w, r)
+		if err != nil {
+			http.Error(w, err.Error(), statusCode)
+			fmt.Println(err)
+			return
+		}
+
+		w.WriteHeader(statusCode)
+	}
+}
