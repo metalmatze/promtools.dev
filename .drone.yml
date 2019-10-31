@@ -16,22 +16,14 @@ steps:
       GO111MODULE: on
       GOPROXY: https://proxy.golang.org
 
-  - name: jsonnet-bundler
-    pull: always
-    image: golang:1.13
-    commands:
-      - go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
-      - jb install
-    environment:
-      CGO_ENABLED: 0
-      GO111MODULE: off
-      GOPROXY: https://proxy.golang.org
-
   - name: configuration
     pull: always
     image: golang:1.13
     commands:
+      - go get github.com/google/go-jsonnet/cmd/jsonnet
+      - go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
       - go get github.com/brancz/gojsontoyaml
+      - jb install
       - make kubernetes.yaml
     environment:
       CGO_ENABLED: 0
