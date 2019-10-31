@@ -10,7 +10,7 @@ steps:
     pull: always
     image: golang:1.13
     commands:
-      - go build -v -ldflags '-w -extldflags '-static''
+      - make build
     environment:
       CGO_ENABLED: 0
       GO111MODULE: on
@@ -22,6 +22,17 @@ steps:
     commands:
       - go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
       - jb install
+    environment:
+      CGO_ENABLED: 0
+      GO111MODULE: off
+      GOPROXY: https://proxy.golang.org
+
+  - name: configuration
+    pull: always
+    image: golang:1.13
+    commands:
+      - go get github.com/brancz/gojsontoyaml
+      - make kubernetes.yaml
     environment:
       CGO_ENABLED: 0
       GO111MODULE: off
