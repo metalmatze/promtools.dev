@@ -1,7 +1,7 @@
 {
   "dependencies": [
     {
-      "name": "ksonnet ",
+      "name": "ksonnet",
       "source": {
         "git": {
           "remote": "https://github.com/ksonnet/ksonnet-lib",
