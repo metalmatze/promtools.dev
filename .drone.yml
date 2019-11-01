@@ -35,14 +35,32 @@ steps:
     settings:
       registry: quay.io
       repo: quay.io/metalmatze/slo-libsonnet-web
+      tag:
+        - ${DRONE_COMMIT_SHA:0:7}
       username:
         from_secret: quay_username
       password:
         from_secret: quay_password
-      auto_tag: true
     when:
       branch:
         - master
-        - drone
+      event:
+        - push
+
+  - name: container-configuration
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile.configuration
+      registry: quay.io
+      repo: quay.io/metalmatze/slo-libsonnet-web
+      tag:
+        - ${DRONE_COMMIT_SHA:0:7}-configuration
+      username:
+        from_secret: quay_username
+      password:
+        from_secret: quay_password
+    when:
+      branch:
+        - master
       event:
         - push

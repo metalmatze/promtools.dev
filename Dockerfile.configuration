@@ -1,0 +1,3 @@
+FROM bitnami/kubectl
+
+COPY kubernetes.yaml /data/kubernetes.yaml
