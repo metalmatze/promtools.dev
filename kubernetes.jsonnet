@@ -26,5 +26,6 @@ k.core.v1.list.new([
     container.mixin.resources.withRequests({ cpu: '100m', memory: '64Mi' }) +
     container.mixin.resources.withLimits({ cpu: '250m', memory: '256Mi' }),
     labels,
-  ),
+  ) +
+  deployment.mixin.spec.selector.withMatchLabels(labels),
 ])
