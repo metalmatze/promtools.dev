@@ -6,7 +6,7 @@ platform:
   arch: amd64
 
 steps:
-  - name: build
+  - name: build-go
     pull: always
     image: golang:1.13
     commands:
@@ -15,6 +15,16 @@ steps:
       CGO_ENABLED: 0
       GO111MODULE: on
       GOPROXY: https://proxy.golang.org
+
+  - name: build-dart
+    pull: always
+    image: google/dart:2.5
+    commands:
+      - pub get --no-precompile
+      - pub global activate webdev
+      - ~/.pub-cache/bin/webdev build
+      - rm -rf build/packages
+      - cp -r build/ ../cmd/ui/assets/
 
   - name: configuration
     pull: always
