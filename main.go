@@ -18,7 +18,9 @@ func main() {
 	})
 
 	r := chi.NewRouter()
-	r.Get("/", HandleFunc(index))
+	r.Get("/", HandleFunc(file("./build/index.html")))
+	r.Get("/main.dart.js", HandleFunc(file("./build/main.dart.js")))
+
 	r.Post("/generate", HandleFunc(generate(vm)))
 
 	if err := http.ListenAndServe(":9099", r); err != nil {
@@ -26,44 +28,11 @@ func main() {
 	}
 }
 
-var indexTemplate = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Prometheus SLO Generator</title>
-	<style>
-		body {
-			font-family: sans-serif;
-		}
-	</style>
-</head>
-<body>
-	<h1>Prometheus SLO</h1>
-	<form action="/generate" method="post">
-		<label for="metric">Metric:</label>
-		<input type="text" autofocus placeholder="http_requests_total" required id="metric" name="metric">
-		<br>
-		<label for="selectors">Selctors:</label>
-		<input type="text" placeholder='[job="prometheus"]' required id="selectors" name="selectors">
-		<br>
-		<label for="errorbudget">ErrorBudget:</label>
-		<input type="text" placeholder='99.9' required id="errorbudget" name="errorbudget">
-		<br><br>
-		<button type="submit">Generate</button>
-	</form>
-</body>
-</html>
-`
-
-func index(w http.ResponseWriter, r *http.Request) (int, error) {
-	_, err := w.Write([]byte(indexTemplate))
-	if err != nil {
-		return http.StatusInternalServerError, err
+func file(filename string) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		http.ServeFile(w, r, filename)
+		return http.StatusOK, nil
 	}
-
-	return http.StatusOK, nil
-
 }
 
 var errorBurnRate = `
@@ -125,7 +94,8 @@ func HandleFunc(h HandlerFunc) http.HandlerFunc {
 			fmt.Println(err)
 			return
 		}
-
-		w.WriteHeader(statusCode)
+		if statusCode != http.StatusOK {
+			w.WriteHeader(statusCode)
+		}
 	}
 }
