@@ -24,7 +24,6 @@ steps:
       - pub global activate webdev
       - ~/.pub-cache/bin/webdev build
       - rm -rf build/packages
-      - cp -r build/ ../cmd/ui/assets/
 
   - name: configuration
     pull: always
