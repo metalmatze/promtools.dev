@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ghodss/yaml"
 	"github.com/go-chi/chi"
@@ -17,52 +18,21 @@ func main() {
 	})
 
 	r := chi.NewRouter()
-	r.Get("/", foo(index))
-	r.Post("/generate", foo(generate(vm)))
+	r.Get("/", HandleFunc(file("./build/index.html")))
+	r.Get("/main.dart.js", HandleFunc(file("./build/main.dart.js")))
+
+	r.Post("/generate", HandleFunc(generate(vm)))
 
 	if err := http.ListenAndServe(":9099", r); err != nil {
 		log.Println(err)
 	}
 }
 
-var indexTemplate = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Prometheus SLO Generator</title>
-	<style>
-		body {
-			font-family: sans-serif;
-		}
-	</style>
-</head>
-<body>
-	<h1>Prometheus SLO</h1>
-	<form action="/generate" method="post">
-		<label for="metric">Metric:</label>
-		<input type="text" autofocus placeholder="http_requests_total" required id="metric" name="metric">
-		<br>
-		<label for="selectors">Selctors:</label>
-		<input type="text" placeholder='[job="prometheus"]' required id="selectors" name="selectors">
-		<br>
-		<label for="errorbudget">ErrorBudget:</label>
-		<input type="text" placeholder='1-0.99' required id="errorbudget" name="errorbudget">
-		<br><br>
-		<button type="submit">Generate</button>
-	</form>
-</body>
-</html>
-`
-
-func index(w http.ResponseWriter, r *http.Request) (int, error) {
-	_, err := w.Write([]byte(indexTemplate))
-	if err != nil {
-		return http.StatusInternalServerError, err
+func file(filename string) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		http.ServeFile(w, r, filename)
+		return http.StatusOK, nil
 	}
-
-	return http.StatusOK, nil
-
 }
 
 var errorBurnRate = `
@@ -73,23 +43,30 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
     metric: '%s',
     selectors: %s,
 
-    errorBudget: %s,
+    errorBudget: %f,
   }),
 
   // Output these as example
   recordingrule: errorburnrate.recordingrules,
   alerts: errorburnrate.alerts,
 }
-
 `
 
 func generate(vm *jsonnet.VM) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		metric := r.FormValue("metric")
 		selectors := r.FormValue("selectors")
-		errorbudget := r.FormValue("errorbudget")
+		formErrorBudget := r.FormValue("errorbudget")
 
-		snippet := fmt.Sprintf(errorBurnRate, metric, selectors, errorbudget)
+		errorBudget, err := strconv.ParseFloat(formErrorBudget, 64)
+		if err != nil {
+			return http.StatusUnprocessableEntity, fmt.Errorf("formErrorBudget is not a float: %w", err)
+		}
+		if errorBudget < 0 || errorBudget > 100 {
+			return http.StatusUnprocessableEntity, fmt.Errorf("errorBudget has to be between 0 and 100")
+		}
+
+		snippet := fmt.Sprintf(errorBurnRate, metric, selectors, 100-errorBudget)
 		json, err := vm.EvaluateSnippet("", snippet)
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -109,7 +86,7 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 
 type HandlerFunc func(http.ResponseWriter, *http.Request) (int, error)
 
-func foo(h HandlerFunc) http.HandlerFunc {
+func HandleFunc(h HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		statusCode, err := h(w, r)
 		if err != nil {
@@ -117,7 +94,8 @@ func foo(h HandlerFunc) http.HandlerFunc {
 			fmt.Println(err)
 			return
 		}
-
-		w.WriteHeader(statusCode)
+		if statusCode != http.StatusOK {
+			w.WriteHeader(statusCode)
+		}
 	}
 }
