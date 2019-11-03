@@ -70,7 +70,7 @@
                     <div class="field">
                         <div class="control">
                             <button class="button is-primary" type="submit" style="background-color: #e6522c"
-                                    [disabled]="loading" (click)="generate()">
+                                    [ngClass]="{'is-loading':loading}" [disabled]="loading" (click)="generate()">
                                 Generate
                             </button>
                         </div>
