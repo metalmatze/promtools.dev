@@ -10,7 +10,7 @@ steps:
     pull: always
     image: golang:1.13
     commands:
-      - make build
+      - make slo-libsonnet-web
     environment:
       CGO_ENABLED: 0
       GO111MODULE: on
