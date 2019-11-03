@@ -68,8 +68,12 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 			return http.StatusInternalServerError, fmt.Errorf("failed to parse JSON: %w", err)
 		}
 
+		if req.Metric == "" {
+			return http.StatusUnprocessableEntity, fmt.Errorf("metric name is empty")
+		}
+
 		if req.Availability < 0 || req.Availability > 100 {
-			return http.StatusUnprocessableEntity, fmt.Errorf("errorBudget has to be between 0 and 100")
+			return http.StatusUnprocessableEntity, fmt.Errorf("availability has to be between 0 and 100")
 		}
 
 		var selectors []string
