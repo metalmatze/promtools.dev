@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="columns is-desktop">
-        <div class="column">
+        <div class="column is-half-desktop">
             <section class="section">
 
                 <h1 class="title">SLOs with Prometheus</h1>
@@ -81,11 +81,10 @@
 
             </section>
         </div>
-        <div class="column">
+        <div class="column is-half-desktop">
             <section class="section">
-                <pre style="background-color: #f5f5f5;border:1px solid #ddd; border-left: 4px solid #e6522c" *ngIf="generated!=''">
-                    <code>{{ generated }}</code>
-                </pre>
+                <pre style="background-color: #f5f5f5;border:1px solid #ddd; border-left: 4px solid #e6522c"
+                     *ngIf="generated!=''">{{ generated }}</pre>
             </section>
         </div>
     </div>
