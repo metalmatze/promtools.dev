@@ -20,7 +20,7 @@ class AppComponent implements OnInit {
     availability: 99.9,
     metric: 'http_requests_total',
   );
-  String generated = 'asdf';
+  String generated = '';
 
   List<List<String>> selectors = [
     ['job', ''],
@@ -38,13 +38,16 @@ class AppComponent implements OnInit {
     Map<String, String> selectorMap = Map<String, String>();
     selectors.forEach((selector) => selectorMap[selector[0]] = selector[1]);
 
+    this.loading = true;
+
     _sloService
         .generate(SLO(
           availability: slo.availability,
           metric: slo.metric,
           selectors: selectorMap,
         ))
-        .then((generated) => this.generated = generated);
+        .then((generated) => this.generated = generated)
+        .whenComplete(() => loading = false);
   }
 
   void unavailabilityMinutes() {
