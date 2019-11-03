@@ -12,10 +12,11 @@
 
         <form>
             <div class="field">
-                <label class="label">Availability (Unavailability: {{ unavailability }})
+                <label class="label">Availability (Unavailability in 30d: {{ unavailability }})
                     <div class="control">
                         <input class="input" type="number" step="0.001" min="0" max="100" placeholder="99.9" autofocus
-                               [(ngModel)]="slo.availability" (change)="unavailabilityMinutes()" (keyup)="unavailabilityMinutes()">
+                               [(ngModel)]="slo.availability" (change)="unavailabilityMinutes()"
+                               (keyup)="unavailabilityMinutes()">
                     </div>
                 </label>
                 <p class="help">
@@ -27,7 +28,8 @@
             <div class="field">
                 <label class="label">Metric
                     <div class="control">
-                        <input class="input" type="text" placeholder="http_requests_total" autofocus [(ngModel)]="slo.metric">
+                        <input class="input" type="text" placeholder="http_requests_total" autofocus
+                               [(ngModel)]="slo.metric">
                     </div>
                 </label>
                 <p class="help">
@@ -36,13 +38,13 @@
                 </p>
             </div>
 
-            <div class="field is-horizontal">
+            <div class="field is-horizontal" *ngFor="let s of selectors; let i=index">
                 <div class="field-body">
                     <div class="field">
                         <label class="label">Name
                             <div class="control">
                                 <label>
-                                    <input class="input" type="text" placeholder="job">
+                                    <input class="input" type="text" placeholder="job" [(ngModel)]="selectors[i][0]">
                                 </label>
                             </div>
                         </label>
@@ -51,7 +53,8 @@
                         <label class="label">Value
                             <div class="control">
                                 <label>
-                                    <input class="input" type="text" placeholder="prometheus">
+                                    <input class="input" type="text" placeholder="prometheus"
+                                           [(ngModel)]="selectors[i][1]">
                                 </label>
                             </div>
                         </label>
@@ -62,7 +65,8 @@
             <div class="field">
                 <div class="control">
                     <button class="button is-primary" type="submit" style="background-color: #e6522c"
-                            [disabled]="loading" (click)="generate()">Generate
+                            [disabled]="loading" (click)="generate()">
+                        Generate
                     </button>
                 </div>
             </div>
@@ -70,5 +74,12 @@
 
         <!-- TODO: Link to the SLO libsonnet project -->
 
+    </section>
+
+</div>
+
+<div class="container">
+    <section class="section">
+        <pre style="background-color: #f5f5f5;border:1px solid #ddd; border-left: 4px solid #e6522c">{{ generated }}</pre>
     </section>
 </div>

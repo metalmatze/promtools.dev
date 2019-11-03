@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ghodss/yaml"
 	"github.com/go-chi/chi"
@@ -22,6 +22,8 @@ func main() {
 	r.Get("/main.dart.js", HandleFunc(file("./build/main.dart.js")))
 
 	r.Post("/generate", HandleFunc(generate(vm)))
+
+	log.Println("Serving on port :9099")
 
 	if err := http.ListenAndServe(":9099", r); err != nil {
 		log.Println(err)
@@ -52,21 +54,34 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
 }
 `
 
+type request struct {
+	Availability float64           `json:"availability"`
+	Metric       string            `json:"metric"`
+	Selectors    map[string]string `json:"selectors"`
+}
+
 func generate(vm *jsonnet.VM) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		metric := r.FormValue("metric")
-		selectors := r.FormValue("selectors")
-		formErrorBudget := r.FormValue("errorbudget")
-
-		errorBudget, err := strconv.ParseFloat(formErrorBudget, 64)
+		var req request
+		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			return http.StatusUnprocessableEntity, fmt.Errorf("formErrorBudget is not a float: %w", err)
+			return http.StatusInternalServerError, fmt.Errorf("failed to parse JSON: %w", err)
 		}
-		if errorBudget < 0 || errorBudget > 100 {
+
+		if req.Availability < 0 || req.Availability > 100 {
 			return http.StatusUnprocessableEntity, fmt.Errorf("errorBudget has to be between 0 and 100")
 		}
 
-		snippet := fmt.Sprintf(errorBurnRate, metric, selectors, 100-errorBudget)
+		var selectors []string
+		for name, value := range req.Selectors {
+			selectors = append(selectors, fmt.Sprintf(`%s="%s"`, name, value))
+		}
+		selectorsJSON, err := json.Marshal(selectors)
+		if err != nil {
+			return http.StatusInternalServerError, fmt.Errorf("failed to marshal selectors: %w", err)
+		}
+
+		snippet := fmt.Sprintf(errorBurnRate, req.Metric, selectorsJSON, 100-req.Availability)
 		json, err := vm.EvaluateSnippet("", snippet)
 		if err != nil {
 			return http.StatusInternalServerError, err
