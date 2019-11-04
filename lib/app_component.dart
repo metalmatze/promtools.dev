@@ -71,6 +71,10 @@ class AppComponent implements OnInit {
           '${unavailability.inHours}h ${unavailability.inMinutes % 60}min';
     } else if (unavailability.compareTo(Duration(minutes: 1)) >= 0) {
       this.unavailability = '${unavailability.inMinutes}min';
+    } else if (unavailability.compareTo(Duration(seconds: 1)) >= 0) {
+      this.unavailability = '${unavailability.inSeconds}s';
+    } else {
+      this.unavailability = 'below 1s...';
     }
   }
 }
