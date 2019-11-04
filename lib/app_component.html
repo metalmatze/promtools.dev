@@ -13,6 +13,17 @@
 
                 <h1 class="title">SLOs with Prometheus</h1>
 
+                <h2 class="subtitle">Multiple Burn Rate Alerts</h2>
+
+                <p>
+                    This page will generate, with the data you provide in the form, the necessary Prometheus alerting and recording rules for
+                    <a href="https://landing.google.com/sre/workbook/chapters/alerting-on-slos/#5-multiple-burn-rate-alerts">Multiple Burn Rate</a> which you might know from
+                    <a href="https://landing.google.com/sre/workbook/toc/">The Site Reliability Workbook</a>.
+                    These rules will evaluate based on the available metrics in the last <strong>30 days</strong>.
+                </p>
+
+                <br>
+
                 <form>
                     <div class="field">
                         <label class="label">Availability (Unavailability in 30d: {{ unavailability }})
