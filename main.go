@@ -44,13 +44,17 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
   local errorburnrate = slo.errorburn({
     metric: '%s',
     selectors: %s,
-
     errorBudget: %f,
   }),
 
-  // Output these as example
-  recordingrule: errorburnrate.recordingrules,
-  alerts: errorburnrate.alerts,
+  groups: [
+    {
+      name: 'SLOs-%s',
+      rules:
+        errorburnrate.alerts +
+        errorburnrate.recordingrules,
+    },
+  ],
 }
 `
 
@@ -85,7 +89,7 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 			return http.StatusInternalServerError, fmt.Errorf("failed to marshal selectors: %w", err)
 		}
 
-		snippet := fmt.Sprintf(errorBurnRate, req.Metric, selectorsJSON, (100-req.Availability) / 100)
+		snippet := fmt.Sprintf(errorBurnRate, req.Metric, selectorsJSON, (100-req.Availability)/100, req.Metric)
 		json, err := vm.EvaluateSnippet("", snippet)
 		if err != nil {
 			return http.StatusInternalServerError, err
