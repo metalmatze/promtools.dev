@@ -64,15 +64,35 @@
                                     </div>
                                 </label>
                             </div>
+                            <div class="field">
+                                <label class="label">&nbsp;
+                                    <div class="control" style="text-align: right">
+                                        <button class="button" style="width: 40px"
+                                                *ngIf="selectors.length > 1"
+                                                (click)="removeSelector(i)">-
+                                        </button>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary" type="submit" style="background-color: #e6522c"
-                                    [ngClass]="{'is-loading':loading}" [disabled]="loading" (click)="generate()">
-                                Generate
-                            </button>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-primary" type="submit" style="background-color: #e6522c"
+                                            [ngClass]="{'is-loading':loading}" [disabled]="loading"
+                                            (click)="generate()">
+                                        Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="buttons has-addons" style="display:block; text-align: right">
+                                <button class="button" (click)="addSelector()" style="width: 40px">+</button>
+                            </div>
                         </div>
                     </div>
                 </form>

@@ -24,7 +24,6 @@ class AppComponent implements OnInit {
 
   List<List<String>> selectors = [
     ['job', ''],
-    ['namespace', 'monitoring'],
   ];
   String unavailability = '';
   bool loading = false;
@@ -33,6 +32,10 @@ class AppComponent implements OnInit {
   void ngOnInit() {
     unavailabilityMinutes();
   }
+
+  void addSelector() => selectors.add(['', '']);
+
+  void removeSelector(int i) => selectors.removeAt(i);
 
   Future generate() async {
     Map<String, String> selectorMap = Map<String, String>();
@@ -52,7 +55,7 @@ class AppComponent implements OnInit {
 
   void unavailabilityMinutes() {
     if (slo.availability == 100) {
-      this.unavailability = 'HAHAHAHAHA, THAT\'S FUNNY!';
+      this.unavailability = "HAHAHAHAHA, THAT'S FUNNY!";
     }
 
     Duration thirtydays = Duration(days: 30);
