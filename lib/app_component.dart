@@ -56,6 +56,7 @@ class AppComponent implements OnInit {
   void unavailabilityMinutes() {
     if (slo.availability == 100) {
       this.unavailability = "HAHAHAHAHA, THAT'S FUNNY!";
+      return;
     }
 
     Duration thirtydays = Duration(days: 30);
