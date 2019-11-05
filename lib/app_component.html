@@ -16,8 +16,10 @@
                 <h2 class="subtitle">Multiple Burn Rate Alerts</h2>
 
                 <p>
-                    This page will generate, with the data you provide in the form, the necessary Prometheus alerting and recording rules for
-                    <a href="https://landing.google.com/sre/workbook/chapters/alerting-on-slos/#5-multiple-burn-rate-alerts">Multiple Burn Rate</a> which you might know from
+                    This page will generate, with the data you provide in the form, the necessary Prometheus alerting
+                    and recording rules for
+                    <a href="https://landing.google.com/sre/workbook/chapters/alerting-on-slos/#5-multiple-burn-rate-alerts">Multiple
+                        Burn Rate</a> which you might know from
                     <a href="https://landing.google.com/sre/workbook/toc/">The Site Reliability Workbook</a>.
                     These rules will evaluate based on the available metrics in the last <strong>30 days</strong>.
                 </p>
@@ -113,14 +115,14 @@
             </section>
         </div>
         <div class="column is-two-thirds-desktop" style="position: relative">
-            <button class="button" data-clipboard-target="#generated" style="position:absolute;top: 60px;right: 36px;">
-                <span class="icon is-small"><i class="fas fa-clipboard"></i></span>
-                <span>Copy to Clipboard</span>
-            </button>
-
-            <section class="section">
+            <section class="section" *ngIf="generated!=''">
+                <button class="button" data-clipboard-target="#generated"
+                        style="position:absolute;top: 60px;right: 36px;">
+                    <span class="icon is-small"><i class="fas fa-clipboard"></i></span>
+                    <span>Copy to Clipboard</span>
+                </button>
                 <pre style="background-color: #f5f5f5;border:1px solid #ddd; border-left: 4px solid #e6522c"
-                     *ngIf="generated!=''" id="generated">{{ generated }}</pre>
+                     id="generated">{{ generated }}</pre>
             </section>
         </div>
     </div>
