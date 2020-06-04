@@ -8,7 +8,7 @@ platform:
 steps:
   - name: build-go
     pull: always
-    image: golang:1.13
+    image: golang:1.14
     commands:
       - make slo-libsonnet-web
     environment:
@@ -27,7 +27,7 @@ steps:
 
   - name: configuration
     pull: always
-    image: golang:1.13
+    image: golang:1.14
     commands:
       - go get github.com/google/go-jsonnet/cmd/jsonnet
       - go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
