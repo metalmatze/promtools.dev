@@ -1,4 +1,4 @@
-name: slo_libsonnet_web
+name: promtools
 description: A web app that generates SLO recording and alerting rules for Prometheus
 version: 0.0.0
 
