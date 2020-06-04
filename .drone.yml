@@ -10,7 +10,7 @@ steps:
     pull: always
     image: golang:1.14
     commands:
-      - make slo-libsonnet-web
+      - make promtools.dev
     environment:
       CGO_ENABLED: 0
       GO111MODULE: on

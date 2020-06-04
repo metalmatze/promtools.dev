@@ -1,6 +1,6 @@
-/kubernetes.yaml
-/slo-libsonnet-web
-/vendor/
 /.dart_tool/
 /.packages
 /build/
+/kubernetes.yaml
+/promtools.dev
+/vendor/

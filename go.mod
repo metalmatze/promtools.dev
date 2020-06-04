@@ -1,4 +1,4 @@
-module github.com/metalmatze/slo-libsonnet-web
+module github.com/metalmatze/promtools.dev
 
 go 1.13
 
