@@ -105,6 +105,6 @@ class SLOService {
       return response.body;
     }
 
-    return '';
+    return 'Error: ' + response.body;
   }
 }
