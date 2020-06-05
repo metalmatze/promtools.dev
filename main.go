@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/go-chi/chi"
@@ -64,6 +66,9 @@ type request struct {
 	Selectors    map[string]string `json:"selectors"`
 }
 
+var metricNameExp = regexp.MustCompile(`^[a-zA-Z_:][a-zA-Z0-9_:]*$`)
+var labelNameExp = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
 func generate(vm *jsonnet.VM) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		var req request
@@ -72,8 +77,8 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 			return http.StatusInternalServerError, fmt.Errorf("failed to parse JSON: %w", err)
 		}
 
-		if req.Metric == "" {
-			return http.StatusUnprocessableEntity, fmt.Errorf("metric name is empty")
+		if !metricNameExp.MatchString(req.Metric) {
+			return http.StatusUnprocessableEntity, fmt.Errorf("metric name is invalid. See https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels for requirements")
 		}
 
 		if req.Availability < 0 || req.Availability > 100 {
@@ -82,7 +87,10 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 
 		var selectors []string
 		for name, value := range req.Selectors {
-			selectors = append(selectors, fmt.Sprintf(`%s="%s"`, name, value))
+			if !labelNameExp.MatchString(name) {
+				return http.StatusUnprocessableEntity, fmt.Errorf("label name '%s' is invalid. See https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels for requirements", name)
+			}
+			selectors = append(selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
 		}
 		selectorsJSON, err := json.Marshal(selectors)
 		if err != nil {
