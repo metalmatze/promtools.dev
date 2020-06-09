@@ -1,0 +1,67 @@
+:root {
+    --primary-color: #e6522c;
+    --text-color: rgba(0, 0, 0, 0.75);
+    --text-color-light: rgba(0, 0, 0, 0.5);
+    --border-color: rgba(0, 0, 0, 0.05);
+    --border-color-hover: rgba(0, 0, 0, 0.2);
+
+    /* FlexboxGrid */
+    --gutter-width: 1rem;
+    --outer-margin: 2rem;
+    --gutter-compensation: calc((var(--gutter-width) * 0.5) * -1);
+    --half-gutter-width: calc((var(--gutter-width) * 0.5));
+    --xs-min: 30;
+    --sm-min: 48;
+    --md-min: 64;
+    --lg-min: 75;
+    --screen-xs-min: var(--xs-min)em;
+    --screen-sm-min: var(--sm-min)em;
+    --screen-md-min: var(--md-min)em;
+    --screen-lg-min: var(--lg-min)em;
+    --container-sm: calc(var(--sm-min) + var(--gutter-width));
+    --container-md: calc(var(--md-min) + var(--gutter-width));
+    --container-lg: calc(var(--lg-min) + var(--gutter-width));
+}
+
+html {
+    background-color: white;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    margin: 0;
+    line-height: 1.5;
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.navbar {
+    min-height: 3.25rem;
+    position: relative;
+    z-index: 30;
+    background-color: var(--primary-color);
+}
+
+.navbar-item {
+    display: inline-block;
+    padding: .5rem .75rem;
+    line-height: 2rem;
+    align-items: center;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 400;
+    color: white;
+}
+
+.navbar-item:hover {
+    text-decoration: none;
+}
