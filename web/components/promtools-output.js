@@ -21,7 +21,7 @@ class Output extends LitElement {
 
     render() {
         return html`
-            ${this.output === '' ? html`` : html`
+            ${this.output === '' ? '' : html`
                 <pre id="output">${this.output}</pre>`
             }
         `;

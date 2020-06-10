@@ -133,7 +133,7 @@ class Form extends LitElement {
                         <h3>Selectors</h3>
                     </div>
                     <div>
-                        <ui-button @click="${() => this.addSelector()}">+</ui-button>
+                        <ui-button @click="${this.addSelector}">+</ui-button>
                     </div>
                 </div>
 

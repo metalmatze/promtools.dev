@@ -5,7 +5,7 @@ import './promtools-output.js';
 class App extends LitElement {
     static get properties() {
         return {
-            loading: {type: Boolean},
+            loading: {type: Boolean, attribute: false},
             output: {type: String},
         }
     }
@@ -102,7 +102,7 @@ class App extends LitElement {
                             These rules will evaluate based on the available metrics in the last <strong>30 days</strong>.
                         </p>
                         <br>
-                        <promtools-form .loading="${this.loading}" @generate="${this.generate}"></promtools-form>
+                        <promtools-form ?loading="${this.loading}" @generate="${this.generate}"></promtools-form>
                         <hr>
                         <p>
                             This project is based on the <a href="https://github.com/metalmatze/slo-libsonnet">SLO-libsonnet</a>
