@@ -5,20 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SLO - PromTools</title>
     <base href="/">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-    <script defer src="main.dart.js"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="web/index.css">
+    <script type="module" src="web/components/promtools-app.js"></script>
+    <script type="module" src="web/components/ui-container.js"></script>
 </head>
-<body></body>
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109508638-4"></script>
-<script>
-    new ClipboardJS('.button');
+<body>
 
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'UA-109508638-4');
-</script>
+<header>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <ui-container>
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">PromTools</a>
+            </div>
+        </ui-container>
+    </nav>
+</header>
 
+<main>
+    <ui-container>
+        <promtools-app></promtools-app>
+    </ui-container>
+</main>
+
+</body>
 </html>

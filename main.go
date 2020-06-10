@@ -20,8 +20,8 @@ func main() {
 	})
 
 	r := chi.NewRouter()
-	r.Get("/", HandleFunc(file("./build/index.html")))
-	r.Get("/main.dart.js", HandleFunc(file("./build/main.dart.js")))
+	r.Get("/", HandleFunc(file("./web/index.html")))
+	r.Handle("/web/*", http.StripPrefix("/web", http.FileServer(http.Dir("./web"))))
 
 	r.Post("/generate", HandleFunc(generate(vm)))
 
@@ -85,7 +85,7 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 			return http.StatusUnprocessableEntity, fmt.Errorf("availability has to be between 0 and 100")
 		}
 
-		var selectors []string
+		selectors := []string{}
 		for name, value := range req.Selectors {
 			if !labelNameExp.MatchString(name) {
 				return http.StatusUnprocessableEntity, fmt.Errorf("label name '%s' is invalid. See https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels for requirements", name)
