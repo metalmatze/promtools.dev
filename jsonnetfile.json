@@ -1,24 +1,25 @@
 {
+  "version": 1,
   "dependencies": [
     {
-      "name": "ksonnet",
       "source": {
         "git": {
-          "remote": "https://github.com/ksonnet/ksonnet-lib",
+          "remote": "https://github.com/ksonnet/ksonnet-lib.git",
           "subdir": ""
         }
       },
-      "version": "master"
+      "version": "master",
+      "name": "ksonnet"
     },
     {
-      "name": "slo-libsonnet",
       "source": {
         "git": {
-          "remote": "https://github.com/metalmatze/slo-libsonnet",
+          "remote": "https://github.com/metalmatze/slo-libsonnet.git",
           "subdir": "slo-libsonnet"
         }
       },
       "version": "master"
     }
-  ]
+  ],
+  "legacyImports": false
 }
