@@ -1,12 +1,11 @@
 FROM alpine
 
-RUN mkdir -p /app/vendor/slo-libsonnet
-RUN mkdir -p /app/build
+RUN mkdir -p /app/vendor/github.com/metalmatze/slo-libsonnet/
+RUN mkdir -p /app/web/
 
 COPY ./promtools.dev /app
-COPY ./vendor/slo-libsonnet /app/vendor/slo-libsonnet
-COPY ./build/index.html /app/build
-COPY ./build/main.dart.js /app/build
+COPY ./web /app/web
+COPY ./vendor/github.com/metalmatze/slo-libsonnet/slo-libsonnet /app/vendor/github.com/metalmatze/slo-libsonnet/slo-libsonnet
 
 WORKDIR /app
 ENTRYPOINT ["/app/promtools.dev"]

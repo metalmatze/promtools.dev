@@ -16,15 +16,6 @@ steps:
       GO111MODULE: on
       GOPROXY: https://proxy.golang.org
 
-  - name: build-dart
-    pull: always
-    image: google/dart:2.5
-    commands:
-      - pub get --no-precompile
-      - pub global activate webdev
-      - ~/.pub-cache/bin/webdev build
-      - rm -rf build/packages
-
   - name: configuration
     pull: always
     image: golang:1.14
