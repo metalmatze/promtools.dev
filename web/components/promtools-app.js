@@ -40,7 +40,7 @@ class App extends LitElement {
             }
 
             .section {
-                padding: 3rem 0.75rem;
+                padding: 3rem 1.5rem;
             }
 
             hr {
