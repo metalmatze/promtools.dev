@@ -136,11 +136,7 @@ class App extends LitElement {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                metric: event.detail.metric,
-                availability: event.detail.availability,
-                selectors: event.detail.selectors,
-            })
+            body: JSON.stringify(event.detail)
         })
             .then((resp) => resp.text())
             .then((text) => this.output = text)

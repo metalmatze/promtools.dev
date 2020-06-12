@@ -1,4 +1,4 @@
-import {css, html, LitElement} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
+import {css, html, LitElement, svg} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
 import './ui-button.js';
 
 class Form extends LitElement {
@@ -8,7 +8,12 @@ class Form extends LitElement {
             unavailability: {type: String},
             metric: {type: String},
             selectors: {type: Array},
+            alertName: {type: String},
+            alertMessage: {type: String},
+            errorSelectors: {type: String},
+
             loading: {type: Boolean},
+            advanced: {type: Boolean, attribute: false},
         };
     }
 
@@ -40,6 +45,13 @@ class Form extends LitElement {
             }
             .field h3 {
                 margin: 0;
+            }
+            .field h3 svg {
+                height: 14px;
+                width: 14px;
+            }
+            .field h3.advanced:hover {
+                cursor: pointer;
             }
             .label {
                 width: 100%;
@@ -77,6 +89,9 @@ class Form extends LitElement {
                 outline: 0;
                 border-color: var(--primary-color);
             }
+            .advanced-hide {
+                display: none;
+            }
         `;
     }
 
@@ -85,18 +100,25 @@ class Form extends LitElement {
         this.target = 99.9;
         this.metric = 'http_requests_total';
         this.selectors = [{name: 'job', value: 'prometheus'}];
+        this.alertName = '';
+        this.alertMessage = '';
+        this.errorSelectors = '';
 
         this.unavailabilityMinutes(this.target);
     }
 
     render() {
+        const chevronRight = svg`<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg>`;
+        const chevronDown = svg`<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>`;
+
         return html`
             <form @submit="${this.generate}">
                 <div class="field">
                     <label class="label" for="target">
-                        <h3>Availability (Unavailability in 30 days: ${this.unavailability})</h3>
+                        <h3>Availability Target (Unavailability in 30 days: ${this.unavailability})</h3>
                         <div class="control">
                             <input class="input" type="number" step="0.001" min="0" max="100" id="target"
+                                placeholder="0-100"
                                 autofocus
                                 .value="${this.target}"
                                 @change="${(event) => this.unavailabilityMinutes(parseFloat(event.target.value))}"
@@ -141,7 +163,8 @@ class Form extends LitElement {
                     <div class="field group">
                         <label class="label">Name
                             <div class="control">
-                                <input type="text" class="input" .value="${selector.name}"
+                                <input type="text" class="input"
+                                    .value="${selector.name}"
                                     ?disabled="${this.loading}"
                                     @change="${(event) => this.updateSelector('name', i, event.target.value)}"
                                     @keyup="${(event) => this.updateSelector('name', i, event.target.value)}"
@@ -150,7 +173,8 @@ class Form extends LitElement {
                         </label>
                         <label class="label">Value
                             <div class="control">
-                                <input type="text" class="input" .value="${selector.value}"
+                                <input type="text" class="input"
+                                    .value="${selector.value}"
                                     ?disabled="${this.loading}"
                                     @change="${(event) => this.updateSelector('value', i, event.target.value)}"
                                     @keyup="${(event) => this.updateSelector('value', i, event.target.value)}"
@@ -164,6 +188,46 @@ class Form extends LitElement {
                         </label>
                     </div>
                 `)}
+
+                <div class="field">
+                    <h3 @click="${() => this.advanced = !this.advanced}" class="advanced">
+                        ${this.advanced ? chevronDown : chevronRight}
+                        Advanced
+                    </h3>
+
+                    <div class="${this.advanced ? '' : 'advanced-hide'}">
+                        <label class="label">Alert Name
+                            <div class="control">
+                                <input class="input" type="text"
+                                    .value="${this.alertName}"
+                                    ?disabled="${this.loading}"
+                                    @change="${(event) => this.alertName = event.target.value}"
+                                    @keyup="${(event) => this.alertName = event.target.value}"
+                                />
+                            </div>
+                        </label>
+                       <label class="label">Alert Message
+                            <div class="control">
+                                <input class="input" type="text"
+                                    .value="${this.alertMessage}"
+                                    ?disabled="${this.loading}"
+                                    @change="${(event) => this.alertMessage = event.target.value}"
+                                    @keyup="${(event) => this.alertMessage = event.target.value}"
+                                />
+                            </div>
+                        </label>
+                       <label class="label">Error Selector
+                            <div class="control">
+                                <input class="input" type="text" placeholder="${'code=~"5.."'}"
+                                    .value="${this.errorSelectors}"
+                                    ?disabled="${this.loading}"
+                                    @change="${(event) => this.errorSelectors = event.target.value}"
+                                    @keyup="${(event) => this.errorSelectors = event.target.value}"
+                                />
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="field">
                     <label class="label">
@@ -215,12 +279,24 @@ class Form extends LitElement {
         let selectors = {};
         this.selectors.forEach((s) => selectors[s.name] = s.value);
 
+        let detail = {
+            metric: this.metric,
+            availability: this.target,
+            selectors: selectors,
+        };
+
+        if (this.alertName !== '') {
+            detail.alertName = this.alertName;
+        }
+        if (this.alertMessage !== '') {
+            detail.alertMessage = this.alertMessage;
+        }
+        if (this.errorSelectors !== '') {
+            detail.errorSelectors = this.errorSelectors;
+        }
+
         this.dispatchEvent(new CustomEvent('generate', {
-            detail: {
-                metric: this.metric,
-                availability: this.target,
-                selectors: selectors,
-            },
+            detail: detail,
         }));
     }
 
