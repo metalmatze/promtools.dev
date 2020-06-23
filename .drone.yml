@@ -65,18 +65,18 @@ steps:
       event:
         - push
 
-#  - name: deploy
-#    pull: always
-#    image: quay.io/signalcd/drone
-#    environment:
-#      PLUGIN_API_URL:
-#        from_secret: signalcd_api
-#      PLUGIN_BASICAUTH_USERNAME:
-#        from_secret: signalcd_username
-#      PLUGIN_BASICAUTH_PASSWORD:
-#        from_secret: signalcd_password
-#    when:
-#      branch:
-#        - master
-#      event:
-#        - push
+  - name: deploy
+    pull: always
+    image: quay.io/signalcd/drone
+    environment:
+      PLUGIN_API_URL:
+        from_secret: signalcd_api
+      PLUGIN_BASICAUTH_USERNAME:
+        from_secret: signalcd_username
+      PLUGIN_BASICAUTH_PASSWORD:
+        from_secret: signalcd_password
+    when:
+      branch:
+        - master
+      event:
+        - push
