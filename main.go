@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -58,14 +59,14 @@ func file(filename string) HandlerFunc {
 
 var errorBurnRate = `
 local slo = import 'github.com/metalmatze/slo-libsonnet/slo-libsonnet/slo.libsonnet';
-local params = %s;
+local errorParams = %s;
 
 {
-  local errorburnrate = slo.errorburn(params),
+  local errorburnrate = slo.errorburn(errorParams),
 
   groups: [
     {
-      name: 'SLOs-%%s' %% params.metric,
+      name: 'SLOs-%%s' %% errorParams.metric,
       rules:
         errorburnrate.alerts +
         errorburnrate.recordingrules,
@@ -74,8 +75,26 @@ local params = %s;
 }
 `
 
-type request struct {
-	Availability   float64           `json:"availability" validate:"required,gte=0,lte=100"`
+var latencyBurnRate = `
+local slo = import 'github.com/metalmatze/slo-libsonnet/slo-libsonnet/slo.libsonnet';
+local latencyParams = %s;
+
+{
+  local latencyburn = slo.latencyburn(latencyParams),
+
+  groups: [
+    {
+      name: 'SLOs-%%s' %% latencyParams.metric,
+      rules:
+        latencyburn.alerts +
+        latencyburn.recordingrules,
+    },
+  ],
+}
+`
+
+type Request struct {
+	Function       string            `json:"function"`
 	Metric         string            `json:"metric" validate:"required,metric"`
 	Selectors      map[string]string `json:"selectors"`
 	ErrorSelectors string            `json:"errorSelectors"`
@@ -83,13 +102,31 @@ type request struct {
 	AlertMessage   string            `json:"alertMessage" validate:"omitempty,alphanumunicode"`
 }
 
-type params struct {
+type errorRequest struct {
+	Request
+	Availability float64 `json:"availability" validate:"required,gte=0,lte=100"`
+}
+
+type errorParams struct {
 	Target         float64  `json:"target"`
 	Metric         string   `json:"metric"`
 	Selectors      []string `json:"selectors"`
 	ErrorSelectors []string `json:"errorSelectors,omitempty"`
 	AlertName      string   `json:"alertName,omitempty"`
 	AlertMessage   string   `json:"alertMessage,omitempty"`
+}
+
+type latencyRequest struct {
+	Request
+	Target float64 `json:"target" validate:"required,gte=0"`
+}
+
+type latencyParams struct {
+	Target    float64  `json:"latencyTarget"`
+	Budget    float64  `json:"latencyBudget"`
+	Metric    string   `json:"metric"`
+	Selectors []string `json:"selectors"`
+	AlertName string   `json:"alertName,omitempty"`
 }
 
 func generate(vm *jsonnet.VM) HandlerFunc {
@@ -104,7 +141,7 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 	validate.RegisterStructValidation(func(sl validator.StructLevel) {
 		labelNameExp := regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
-		req := sl.Current().Interface().(request)
+		req := sl.Current().Interface().(Request)
 
 		for name, value := range req.Selectors {
 			if !labelNameExp.MatchString(name) {
@@ -115,36 +152,80 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 				sl.ReportError(req.Selectors, "selector.value", "Selector value", "label", "")
 			}
 		}
-	}, request{})
+	}, Request{})
 
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		var req request
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		var req Request
+		if err := json.Unmarshal(body, &req); err != nil {
 			return http.StatusInternalServerError, fmt.Errorf("failed to parse JSON: %w", err)
 		}
 		defer r.Body.Close()
 
-		if err := validate.Struct(req); err != nil {
-			return http.StatusUnprocessableEntity, err
+		var snippet string
+		if req.Function == "errorburn" {
+			var errorReq errorRequest
+			if err := json.Unmarshal(body, &errorReq); err != nil {
+				return http.StatusInternalServerError, err
+			}
+
+			if err := validate.Struct(errorReq); err != nil {
+				return http.StatusUnprocessableEntity, err
+			}
+
+			p := errorParams{
+				Target:       errorReq.Availability / 100,
+				Metric:       errorReq.Metric,
+				AlertName:    errorReq.AlertName,
+				AlertMessage: errorReq.AlertMessage,
+			}
+
+			for name, value := range errorReq.Selectors {
+				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
+			}
+
+			params, err := json.Marshal(p)
+			if err != nil {
+				return http.StatusInternalServerError, fmt.Errorf("failed to marshal Request: %w", err)
+			}
+
+			snippet = fmt.Sprintf(errorBurnRate, string(params))
+		}
+		if req.Function == "latencyburn" {
+			var latencyReq latencyRequest
+			if err := json.Unmarshal(body, &latencyReq); err != nil {
+				return http.StatusInternalServerError, err
+			}
+
+			if err := validate.Struct(latencyReq); err != nil {
+				return http.StatusUnprocessableEntity, err
+			}
+
+			p := latencyParams{
+				Target:    latencyReq.Target / 1000, // we want seconds
+				Budget:    1,
+				Metric:    latencyReq.Metric,
+				AlertName: latencyReq.AlertName,
+			}
+			for name, value := range latencyReq.Selectors {
+				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
+			}
+
+			params, err := json.Marshal(p)
+			if err != nil {
+				return http.StatusInternalServerError, fmt.Errorf("failed to marshal Request: %w", err)
+			}
+
+			snippet = fmt.Sprintf(latencyBurnRate, string(params))
 		}
 
-		p := params{
-			Target:       req.Availability / 100,
-			Metric:       req.Metric,
-			AlertName:    req.AlertName,
-			AlertMessage: req.AlertMessage,
-		}
+		//w.Write([]byte(snippet))
+		//return http.StatusOK, nil
 
-		for name, value := range req.Selectors {
-			p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
-		}
-
-		bytes, err := json.Marshal(p)
-		if err != nil {
-			return http.StatusInternalServerError, fmt.Errorf("failed to marshal request: %w", err)
-		}
-
-		snippet := fmt.Sprintf(errorBurnRate, string(bytes))
 		json, err := vm.EvaluateSnippet("", snippet)
 		if err != nil {
 			return http.StatusInternalServerError, err
