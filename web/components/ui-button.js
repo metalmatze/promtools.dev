@@ -1,5 +1,5 @@
 import {css, html, LitElement} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
-import {classMap} from 'https://unpkg.com/lit-html@1.2.1/directives/class-map.js?module';
+import {classMap} from 'https://unpkg.com/lit-html@1.3.0/directives/class-map.js?module';
 
 class Button extends LitElement {
     static get styles() {
