@@ -1,4 +1,4 @@
-import {css, html, LitElement} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
+import {css, html, LitElement} from 'lit-element';
 
 class Container extends LitElement {
     static get styles() {

@@ -9,3 +9,10 @@ promtools.dev: $(shell find . -name '*.go')
 
 kubernetes.yaml: kubernetes.jsonnet
 	jsonnet -J vendor --ext-str tag=$(REVISION) kubernetes.jsonnet | gojsontoyaml > kubernetes.yaml
+
+node_modules: package.json package-lock.json
+	npm install
+	touch $@
+
+web/bundle.js: node_modules $(shell find ./web -iname '*.js' | grep -v ./web/bundle.js)
+	node_modules/esbuild/bin/esbuild --bundle web/index.js --outfile=web/bundle.js --minify --sourcemap

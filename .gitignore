@@ -1,6 +1,5 @@
-/.dart_tool/
-/.packages
-/build/
 /kubernetes.yaml
+/node_modules/
 /promtools.dev
 /vendor/
+/web/bundle.*

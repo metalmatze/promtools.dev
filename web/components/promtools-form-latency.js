@@ -1,4 +1,4 @@
-import {css, html, LitElement, svg} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
+import {css, html, LitElement, svg} from 'lit-element';
 import './ui-button.js';
 import './ui-tabs.js';
 

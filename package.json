@@ -1,0 +1,26 @@
+{
+  "name": "promtools.dev",
+  "version": "0.1.0",
+  "description": "Generate SLOs for Prometheus via HTTP with jsonnet",
+  "main": "web/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/metalmatze/promtools.dev.git"
+  },
+  "author": "metalmatze",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/metalmatze/promtools.dev/issues"
+  },
+  "homepage": "https://github.com/metalmatze/promtools.dev#readme",
+  "devDependencies": {
+    "esbuild": "^0.7.5"
+  },
+  "dependencies": {
+    "lit-element": "^2.4.0",
+    "lit-html": "^1.3.0"
+  }
+}

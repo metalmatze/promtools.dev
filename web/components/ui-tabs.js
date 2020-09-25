@@ -1,4 +1,4 @@
-import {css, html, LitElement, svg} from 'https://unpkg.com/lit-element@2.3.1/lit-element.js?module';
+import {css, html, LitElement, svg} from 'lit-element';
 
 class Tabs extends LitElement {
     static get styles() {

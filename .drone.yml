@@ -16,6 +16,12 @@ steps:
       GO111MODULE: on
       GOPROXY: https://proxy.golang.org
 
+  - name: build-ui
+    pull: always
+    image: node:14.11.0
+    commands:
+      - make web/bundle.js
+
   - name: configuration
     pull: always
     image: golang:1.14
