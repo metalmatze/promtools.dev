@@ -22,10 +22,10 @@ func main() {
 	})
 
 	r := chi.NewRouter()
-	r.Get("/", HandleFunc(file("./web/index.html")))
-	r.Handle("/web/*", http.StripPrefix("/web", http.FileServer(http.Dir("./web"))))
-
 	r.Post("/generate", HandleFunc(generate(vm)))
+	r.Handle("/web/*", http.StripPrefix("/web", http.FileServer(http.Dir("./web"))))
+	r.Get("/", HandleFunc(file("./web/index.html")))
+	r.NotFound(HandleFunc(file("./web/index.html")))
 
 	log.Println("Serving on port :9099")
 
