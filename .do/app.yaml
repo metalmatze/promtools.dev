@@ -1,0 +1,15 @@
+name: promtools
+services:
+- name: api
+  environment_slug: golang
+  github:
+    repo: metalmatze/promtools.dev
+    branch: master
+    deploy_on_push: true
+- name: ui
+  build_command: npm run build
+  environment_slug: node-js
+  github:
+    repo: metalmatze/promtools.dev
+    branch: master
+    deploy_on_push: true
