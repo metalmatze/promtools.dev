@@ -207,7 +207,7 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 
 			p := latencyParams{
 				Target:    latencyReq.Target / 1000, // we want seconds
-				Budget:    1,
+				Budget:    0.01,
 				Metric:    latencyReq.Metric,
 				AlertName: latencyReq.AlertName,
 			}
