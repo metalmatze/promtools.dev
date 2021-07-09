@@ -1,6 +1,5 @@
-/.next/
 /kubernetes.yaml
 /node_modules/
 /promtools.dev
 /vendor/
-/web/bundle.*
+/build/

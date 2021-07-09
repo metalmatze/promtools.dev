@@ -5,7 +5,7 @@ local deployment = k.apps.v1.deployment;
 local container = deployment.mixin.spec.template.spec.containersType;
 local containerPort = container.portsType;
 
-local name = 'slo-libsonnet-web';
+local name = 'promtools';
 local image = 'quay.io/metalmatze/slo-libsonnet-web:%s' % std.extVar('tag');
 local labels = { 'app.kubernetes.io/name': name };
 
