@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import {Button, Col, Form, Row} from "react-bootstrap";
 import './Errors.scss';
+import Selectors from '../../components/Selectors'
 
 const AlertsErrors = () => {
     const [target, setTarget] = useState(99.9);
@@ -89,7 +90,9 @@ const AlertsErrors = () => {
                         </Form.Text>
                     </Form.Group>
 
-                    <Button variant="primary" type="submit" block>Generate</Button>
+                    <Selectors/>
+
+                    <Button variant="primary" type="submit">Generate</Button>
                 </Form>
             </Col>
         </Row>
