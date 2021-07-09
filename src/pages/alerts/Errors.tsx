@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import {Button, Col, Form, Row} from "react-bootstrap";
 import './Errors.scss';
 
@@ -40,10 +40,29 @@ const AlertsErrors = () => {
         setUnavailability(`${Math.floor(seconds)}s`);
     }
 
+    const generate = (event: FormEvent) => {
+      event.preventDefault()
+
+      const detail = {
+        function: 'errorburn',
+        metric: metric,
+        availability: target
+        // selectors: selectors,
+      };
+
+      fetch('https://promtools.dev/generate', {
+          method: 'POST',
+          cache: 'no-cache',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(detail)
+        }
+      ).then((resp) => console.log(resp))
+    }
+
     return (
         <Row>
             <Col>
-                <Form>
+                <Form onSubmit={generate}>
                     <Form.Group controlId="target">
                         <Form.Label>Availability Target (Unavailability in 30 days: {unavailability})</Form.Label>
                         <input className="form-control" type="number" placeholder="0-100" autoFocus
@@ -70,7 +89,7 @@ const AlertsErrors = () => {
                         </Form.Text>
                     </Form.Group>
 
-                    <Button variant="primary" block>Generate</Button>
+                    <Button variant="primary" type="submit" block>Generate</Button>
                 </Form>
             </Col>
         </Row>
