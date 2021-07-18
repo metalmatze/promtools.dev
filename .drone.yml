@@ -20,6 +20,7 @@ steps:
     pull: always
     image: node:16.5
     commands:
+      - npm install
       - npm run build
 
   - name: configuration
