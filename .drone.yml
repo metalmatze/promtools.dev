@@ -18,9 +18,9 @@ steps:
 
   - name: build-ui
     pull: always
-    image: node:14.11.0
+    image: node:16.5
     commands:
-      - make web/bundle.js
+      - npm run build
 
   - name: configuration
     pull: always

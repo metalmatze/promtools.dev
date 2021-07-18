@@ -15,4 +15,4 @@ node_modules: package.json package-lock.json
 	touch $@
 
 web/bundle.js: node_modules $(shell find ./web -iname '*.js' | grep -v ./web/bundle.js)
-	node_modules/esbuild/bin/esbuild --bundle web/index.js --outfile=web/bundle.js --minify --sourcemap
+	npm run build
