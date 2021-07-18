@@ -11,6 +11,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/go-jsonnet"
 )
@@ -22,6 +23,7 @@ func main() {
 	})
 
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{})) // TODO: Disable by default
 	r.Post("/generate", HandleFunc(generate(vm)))
 	r.Handle("/web/*", http.StripPrefix("/web", http.FileServer(http.Dir("./web"))))
 	r.Get("/", HandleFunc(file("./web/index.html")))
@@ -93,13 +95,18 @@ local latencyParams = %s;
 }
 `
 
+type Selector struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 type Request struct {
-	Function       string            `json:"function"`
-	Metric         string            `json:"metric" validate:"required,metric"`
-	Selectors      map[string]string `json:"selectors"`
-	ErrorSelectors string            `json:"errorSelectors"`
-	AlertName      string            `json:"alertName" validate:"omitempty,alphanum"`
-	AlertMessage   string            `json:"alertMessage" validate:"omitempty,alphanumunicode"`
+	Function       string     `json:"function"`
+	Metric         string     `json:"metric" validate:"required,metric"`
+	Selectors      []Selector `json:"selectors"`
+	ErrorSelectors string     `json:"errorSelectors"`
+	AlertName      string     `json:"alertName" validate:"omitempty,alphanum"`
+	AlertMessage   string     `json:"alertMessage" validate:"omitempty,alphanumunicode"`
 }
 
 type errorRequest struct {
@@ -143,12 +150,13 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 
 		req := sl.Current().Interface().(Request)
 
-		for name, value := range req.Selectors {
-			if !labelNameExp.MatchString(name) {
+		for _, s := range req.Selectors {
+
+			if !labelNameExp.MatchString(s.Name) {
 				sl.ReportError(req.Selectors, "selector.name", "Selector Name", "label", "")
 
 			}
-			if !labelNameExp.MatchString(value) {
+			if !labelNameExp.MatchString(s.Value) {
 				sl.ReportError(req.Selectors, "selector.value", "Selector value", "label", "")
 			}
 		}
@@ -184,8 +192,8 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 				AlertMessage: errorReq.AlertMessage,
 			}
 
-			for name, value := range errorReq.Selectors {
-				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
+			for _, s := range errorReq.Selectors {
+				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, s.Name, strings.Replace(s.Value, `"`, `\"`, -1)))
 			}
 
 			params, err := json.Marshal(p)
@@ -211,8 +219,8 @@ func generate(vm *jsonnet.VM) HandlerFunc {
 				Metric:    latencyReq.Metric,
 				AlertName: latencyReq.AlertName,
 			}
-			for name, value := range latencyReq.Selectors {
-				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, name, strings.Replace(value, `"`, `\"`, -1)))
+			for _,s := range latencyReq.Selectors {
+				p.Selectors = append(p.Selectors, fmt.Sprintf(`%s="%s"`, s.Name, strings.Replace(s.Value, `"`, `\"`, -1)))
 			}
 
 			params, err := json.Marshal(p)

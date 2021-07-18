@@ -1,7 +1,9 @@
-import React, { FormEvent, useState } from "react"
-import { Col, Container, Row, Tab, Tabs } from "react-bootstrap";
+import React, { useState } from "react"
+import { Alert, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { useHistory, useLocation } from "react-router-dom";
+import "./Alerts.scss";
 import AlertsErrors from "./alerts/Errors";
+import AlertsLatency from './alerts/Latency'
 
 const Alerts = () => {
   const history = useHistory();
@@ -10,10 +12,18 @@ const Alerts = () => {
 
   const selectTab = (t: string | null) => history.push(`/alerts/${t}`)
 
+  const [generated, setGenerated] = useState<string>('')
+  const [error, setError] = useState<string>('')
+
+  const handleGenerated = (body: string, err: string) => {
+    setGenerated(body)
+    setError(err)
+  }
+
   return (
     <Container fluid="xl">
       <Row>
-        <Col xl={6}>
+        <Col md={6} xl={5}>
           <h1 className="mb-0">SLOs with Prometheus</h1>
           <h4 className="text-secondary mb-4">Multiple Burn Rate Alerts</h4>
           <p>
@@ -29,10 +39,10 @@ const Alerts = () => {
 
           <Tabs activeKey={tab} onSelect={selectTab} transition={false}>
             <Tab eventKey="errors" title="Errors">
-              <AlertsErrors/>
+              <AlertsErrors generated={handleGenerated}/>
             </Tab>
             <Tab eventKey="latency" title="Latency">
-              <div>latency</div>
+              <AlertsLatency generated={handleGenerated}/>
             </Tab>
           </Tabs>
 
@@ -43,17 +53,24 @@ const Alerts = () => {
             href="https://github.com/metalmatze/slo-libsonnet">SLO-libsonnet</a>
             {' '}project to generate the YAML with jsonnet.<br/>
             The Web UI is built with{' '}
-            <a href="https://lit-element.polymer-project.org/">LitElement</a>
+            <a href="https://reactjs.org/">React</a>
             {' '}and{' '}
-            <a href="https://golang.org">Go</a>
-            {' '}and the <a href="https://github.com/metalmatze/promtools.dev">source is on GitHub</a> too.
+            <a href="https://golang.org">Go</a>.
+            {' '}The <a href="https://github.com/metalmatze/promtools.dev">source is on GitHub</a>.
           </p>
           <p>
             Built by <a href="https://twitter.com/metalmatze">MetalMatze</a>.
             Feel free to reach out for feedback or questions.
           </p>
         </Col>
-        <Col xl={6}>generated</Col>
+        <Col md={6} xl={7}>
+          {error !== '' ? (
+            <Alert variant="danger">{error}</Alert>
+          ) : (<></>)}
+          {generated !== '' ? (
+            <pre className="output">{generated}</pre>
+          ) : (<></>)}
+        </Col>
       </Row>
     </Container>
   );
